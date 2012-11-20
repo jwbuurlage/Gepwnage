@@ -12,20 +12,37 @@ using namespace std;
 
 int pirates[100][3]; // x, y, v
 int tentacles[100][2];
-int times[100][100];
+double times[101][101];
 
-bool visited[100];
+bool visited[101];
+int match[101];
+double t = 0.0;
+int n, p;
 
-bool recur(int node)
+double dist(int x1, int y1, int x2, int y2, int v)
 {
+  return sqrt((double)((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))) / (double)v;
+}
 
+bool augment(int node)
+{
+  for(int i = 0; i < p; ++i) {
+    if(visited[i]) continue;
+    if(times[node][i] > t) continue;
+    visited[i] = true;
+    if(match[i] == -1 || augment(match[i])) {
+      match[i] = node;
+      return true;
+    }
+  }
+  return false;
 }
 
 void run()
 {
   memset(visited, false, sizeof(visited));
+  memset(times, 0, sizeof(times));
 
-  int n, p;
   cin >> n >> p;
 
   int xc, yc, vc;
@@ -43,57 +60,55 @@ void run()
   // build graph
   for(int i = 0; i < n; ++i)
     for(int j = 0; j < p; ++j)
-      times[i][j] = sqrt(pow((tentacles[i][0] - pirates[j][0]), 2) + pow((tentacles[i][0] - pirates[j][0]), 2)) / pirates[j][2];
+      times[i][j] = dist(tentacles[i][0], tentacles[i][1], pirates[j][0], pirates[j][1], pirates[j][2]);
 
-  int* possibilities = (int*)malloc(sizeof(int) * p);
-  memcpy(times, possibilities, sizeof(possibilities));
-  sort(&possibilities[0], &possibilities[p]);
+  double possibilities[10001];
+  for(int i = 0; i < n; ++i)
+    for(int j = 0; j < p; ++j)
+      possibilities[i*p + j] = times[i][j];
+  sort(&possibilities[0], &possibilities[n*p]);
 
-  // binary search
-  float time = 0.0;
-
-  bool done = false;
   bool matching_exists = false;
 
   int min = 0;
-  int max = p;
+  int max = n*p;
+
+  double total_time = 0.0;
 
   int current;
 
-  while(!done)
+  while(true)
   {
-    current = (min + max) / 2;
+    bool matching = true;
+    memset(match, -1, sizeof(match));
 
-    if(matching_exists)
-      current = current / 2;
+    current = (min + max) / 2;
+    t = possibilities[current];
 
     // is there a matching?
-    for(int j = 0; j < n; ++j)
-    {
-      if(times[j][current] < possibilities[current] && !visited[j])
-      {
-        visited[j] = true;
+    for(int j = 0; j < n; ++j) {
+      memset(visited, false, sizeof(visited));
+      //match tentacle j
+      if(!augment(j)) {
+        matching = false;
         break;
-      }
-
-      if(!visited[j])
-      {
-        // was no free match
-        // try switching one around
-        for(int j = 0; j < n; ++j)
-          if(times[current][j] < times[0][current])
-            if(recur(j))
-              visited[j] = true;
-            else
-              done = true; // no match
       }
     }
 
+    if(matching) {
+      max = current;
+    } else {
+      min = current + 1;
+    }
+
+    if(min == max)
+      break;
   }
 
-  time += sqrt(pow(xh - xc, 2) + pow(yh - yc, 2)) / vc;
+  total_time = possibilities[min];
+  total_time += dist(xh, yh, xc, yc, vc);
 
-  cout << setprecision(6) << time << endl;
+  cout << setprecision(10) << total_time << endl;
 }
 
 int main()

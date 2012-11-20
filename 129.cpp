@@ -2,6 +2,7 @@
 #include <queue>
 #include <vector>
 #include <stack>
+#include <string.h>
 
 using namespace std;
 
@@ -12,8 +13,6 @@ void run()
   memset(amount, 0, sizeof(amount));
 
   string s;
-  cin >> s;
-
   getline(cin, s);
 
   for(int i = 0; i < s.size(); ++i)
@@ -39,8 +38,9 @@ void run()
 
   int distance = ((max_id - 4) + 26) % 26;
 
-  if(multiple)
+  if(multiple) {
     cout << "NOT POSSIBLE";
+  }
   else
   {
     cout << distance << " ";
@@ -60,6 +60,8 @@ int main()
 {
   int runs;
   cin >> runs;
+  string s;
+  getline(cin, s);
   while(runs--)
     run();
 
