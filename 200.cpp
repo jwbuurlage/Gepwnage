@@ -109,9 +109,9 @@ void run()
         edges.push_back(Edge(node_id, players_start + j, 2));
         adj[node_id].push_back(edges.size() - 1);
         adj[players_start + j].push_back(edges.size() - 1);
-        edges.push_back(Edge(node_id, players_start + k, 2));
+        edges.push_back(Edge(node_id, players_start + unplayed[j][k], 2));
         adj[node_id].push_back(edges.size() - 1);
-        adj[players_start + k].push_back(edges.size() - 1);
+        adj[players_start + unplayed[j][k]].push_back(edges.size() - 1);
         ++node_id;
       }
     }
